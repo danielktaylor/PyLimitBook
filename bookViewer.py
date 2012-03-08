@@ -237,7 +237,7 @@ class BookViewer(object):
 				line += '  [AGGREGATED VIEW]'
 			dimensions = self.screen.getmaxyx()
 			if len(line) < dimensions[1] - 4:
-				empty = dimensions[1] - len(line) - 4
+				empty = dimensions[1] - len(line) - 10
 				line += (" " * empty)
 			self.screen.addstr(1,3,line.replace(',',', '))
 
