@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys, csv
+from math import isnan
 from researchBook import ResearchBook
 from pandas import *
 
@@ -12,8 +13,8 @@ def appendPoint(quotebook):
 	values['top_ask'] = quotebook.topAskPrice
 	values['top_bid'] = quotebook.topBidPrice
 	values['spread'] = quotebook.spread
-	values['ask_volume'] = quotebook.askVolume
 	values['bid_volume'] = quotebook.bidVolume
+	values['ask_volume'] = quotebook.askVolume
 
 	# Note: This will overwrite older values!
 	global timeseries
@@ -33,6 +34,8 @@ def sample(quotebook,output_file):
 				sampled.get(quotebook.openTime).keys())
 		# write values
 		for index,values in sampled.iteritems():
+			if type(values) == float and isnan(values):
+				break
 			writer.writerow([index] + values.values())
 
 if __name__ == '__main__':
@@ -45,8 +48,10 @@ if __name__ == '__main__':
 		numLines = 0 # Max lines to read in
 		if numLines > 0:
 			print "Only reading in %i lines" % numLines
+		else:
+			numLines = -1
 		for line in reader:
-			if numLines > 0:
+			if numLines >= 0:
 				if numLines == 0:
 					break
 				else:
