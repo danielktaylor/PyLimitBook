@@ -3,7 +3,7 @@
 
 class Tick(object):
     def __init__(self, data):
-        self.useFloat = True  # Use floats to approximate prices instead of Decimals
+        self.useFloat = False  # Use floats to approximate prices instead of exact representation
         self.timestamp = int(data['timestamp'])
         self.qty = int(data['qty'])
         self.price = self.convertPrice(data['price'])
@@ -18,9 +18,11 @@ class Tick(object):
             return int(float(price) * float(10000))
         else:
             # Exact representation
-            from decimal import Decimal
-
-            return int(Decimal(price) * Decimal(10000))
+            idx = price.index('.')
+            concat = "%s%s" % (price[0:idx], price[idx+1:].ljust(4,'0')[0:4])
+            return int(concat)
+            #from decimal import Decimal
+            #return int(Decimal(price) * Decimal(10000))
 
 
 class Trade(Tick):

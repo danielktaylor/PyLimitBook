@@ -12,6 +12,8 @@ class Tree(object):
         self.volume = 0
         self.priceMap = {}  # Map from price -> orderList object
         self.orderMap = {}  # Order ID to Order object
+        self.minPrice = None
+        self.maxPrice = None
 
     def __len__(self):
         return len(self.orderMap)
@@ -26,10 +28,25 @@ class Tree(object):
         newList = OrderList()
         self.priceTree.insert(price, newList)
         self.priceMap[price] = newList
+        if self.maxPrice == None or price > self.maxPrice:
+            self.maxPrice = price
+        if self.minPrice == None or price < self.minPrice:
+            self.minPrice = price
 
     def removePrice(self, price):
         self.priceTree.remove(price)
         del self.priceMap[price]
+
+        if self.maxPrice == price:
+            try:
+                self.maxPrice = max(self.priceTree)
+            except ValueError:
+                self.maxPrice = None
+        if self.minPrice == price:
+            try:
+                self.minPrice = min(self.priceTree)
+            except ValueError:
+                self.minPrice = None
 
     def priceExists(self, price):
         return price in self.priceMap
@@ -69,7 +86,7 @@ class Tree(object):
         del self.orderMap[idNum]
 
     def max(self):
-        return min(self.priceTree)
+        return self.maxPrice
 
     def min(self):
-        return max(self.priceTree)
+        return self.minPrice

@@ -29,13 +29,13 @@ class ResearchBook(Book):
     def topBidPrice(self):
         if len(self.bids) == 0:
             return 0
-        return max(self.bids.priceTree)
+        return self.bids.max()
 
     @property
     def topAskPrice(self):
         if len(self.asks) == 0:
             return 0
-        return min(self.asks.priceTree)
+        return self.asks.min()
 
     @property
     def bidVolume(self):
@@ -49,3 +49,10 @@ class ResearchBook(Book):
     def spread(self):
         spread = self.topAskPrice - self.topBidPrice
         return spread if spread > 0 else 0
+
+    @property
+    def midpointPrice(self):
+        if self.spread > 0:
+            return self.topBidPrice + (self.spread / 2)
+        else:
+            return None
