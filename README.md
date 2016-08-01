@@ -8,9 +8,8 @@ This code is aimed at other developers looking for a limit-book implementation t
 
 ## Requirements
 
-* Python libraries bintrees (v0.4 used) and pandas.
-* curses and cPickle libraries are also used, but are often installed by default.
-* This code has thus far only been tested on Ubuntu Linux with Python 2.7.2.
+* pip install -r requirements.txt
+* This code has not been updated for Python 3
 
 ## Input Data Format
 
