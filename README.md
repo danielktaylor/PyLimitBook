@@ -19,12 +19,14 @@ PyLimitBook applications expect the following input format (in a CSV file):
 * bids:
 
 	`B,<symbol>,<exchange>,<id>,<quantity>,<price>,<timestamp>`
+
 * asks:
 
 	`A,<symbol>,<exchange>,<id>,<quantity>,<price>,<timestamp>`
+
 * trades: (optional)
 
-	`T,<symbol>,<exchange>,<quantity>,<price>,<timestamp>`
+	`T,<symbol>,<exchange>,,<quantity>,<price>,<timestamp>`
 
 Symbol and exchange values are currently unimportant and can be dummy values.
 Lines should be in timestamp-order from earliest to latest (the order it is sent by the exchange).

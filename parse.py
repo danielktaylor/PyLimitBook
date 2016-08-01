@@ -4,7 +4,6 @@ import sys
 
 from book import Book
 
-
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print "usage: %s input.csv" % sys.argv[0]

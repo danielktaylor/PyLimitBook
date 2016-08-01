@@ -8,42 +8,38 @@ from pandas import *
 
 from researchBook import ResearchBook
 
-
 timeseries = {}
 
-
-def appendPoint(quotebook):
+def append_point(quotebook):
     values = {}
-    values['timestamp'] = quotebook.lastTimestamp
-    values['top_ask'] = quotebook.topAskPrice
-    values['top_bid'] = quotebook.topBidPrice
+    values['timestamp'] = quotebook.last_timestamp
+    values['top_ask'] = quotebook.top_ask_price
+    values['top_bid'] = quotebook.top_bid_price
     values['spread'] = quotebook.spread
-    values['bid_volume'] = quotebook.bidVolume
-    values['ask_volume'] = quotebook.askVolume
+    values['bid_volume'] = quotebook.bid_volume
+    values['ask_volume'] = quotebook.ask_volume
 
     # Note: This will overwrite older values!
     global timeseries
-    timeseries[quotebook.lastTimestamp] = values
-
+    timeseries[quotebook.last_timestamp] = values
 
 def sample(quotebook, output_file):
     # resample by seconds
     global timeseries
     sampled = Series(timeseries) \
-        .reindex(range(quotebook.openTime, quotebook.closeTime, 1000), \
+        .reindex(range(quotebook.open_time, quotebook.close_time, 1000), \
                  method='backfill')
 
     with open(output_file, 'w') as infile:
         writer = csv.writer(infile)
         # write header
         writer.writerow(['sample_timestamp'] + \
-                        sampled.get(quotebook.openTime).keys())
+                        sampled.get(quotebook.open_time).keys())
         # write values
         for index, values in sampled.iteritems():
             if type(values) == float and isnan(values):
                 break
             writer.writerow([index] + values.values())
-
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
@@ -52,17 +48,17 @@ if __name__ == '__main__':
     try:
         reader = open(sys.argv[1], 'r')
         quotebook = ResearchBook()
-        numLines = 0  # Max lines to read in
-        if numLines > 0:
-            print "Only reading in %i lines" % numLines
+        num_lines = 0  # Max lines to read in
+        if num_lines > 0:
+            print "Only reading in %i lines" % num_lines
         else:
-            numLines = -1
+            num_lines = -1
         for line in reader:
-            if numLines >= 0:
-                if numLines == 0:
+            if num_lines >= 0:
+                if num_lines == 0:
                     break
                 else:
-                    numLines -= 1
+                    num_lines -= 1
             # Process bid/ask/trade
             if line[0] == 'B':
                 quotebook.bid(line.rstrip())
@@ -71,8 +67,8 @@ if __name__ == '__main__':
             else:
                 quotebook.trade(line.rstrip())
             # Append datapoint
-            if quotebook.isMarketOpen():
-                appendPoint(quotebook)
+            if quotebook.is_market_open():
+                append_point(quotebook)
         reader.close()
         sample(quotebook, sys.argv[2])
     except IOError:

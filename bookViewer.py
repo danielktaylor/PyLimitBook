@@ -8,16 +8,15 @@ from collections import deque
 
 from bookViewerBook import BookViewerBook
 
-
 class BookViewer(object):
     def __init__(self):
         self.help_text = ' n:Next  N:Prev  t:Play for time  T:Go to time  l:Play for lines  L:Play to line  a:Aggregate  .:Repeat'
         self.screen = None
         self.quotebook = BookViewerBook()
         self.max_reverse = 100
-        self.quotebookHistory = deque(maxlen=self.max_reverse)
+        self.quotebook_history = deque(maxlen=self.max_reverse)
         self.infile = []
-        self.currIndex = -1
+        self.curr_index = -1
         self.last_skipped = 0
         self.aggregate = False
 
@@ -36,18 +35,18 @@ class BookViewer(object):
 
     def reset(self):
         self.quotebook = BookViewerBook()
-        self.quotebookHistory.clear()
-        self.currIndex = -1
+        self.quotebook_history.clear()
+        self.curr_index = -1
 
-    def processLine(self, saveHistory=False):
+    def process_line(self, save_history=False):
         # Save the history
-        if saveHistory:
-            self.quotebookHistory.append(cPickle.dumps(self.quotebook, protocol=-1))
+        if save_history:
+            self.quotebook_history.append(cPickle.dumps(self.quotebook, protocol=-1))
         else:
-            self.quotebookHistory.clear()
+            self.quotebook_history.clear()
 
         # Play line
-        line = self.infile[self.currIndex + 1]
+        line = self.infile[self.curr_index + 1]
         if line[0] == 'B':
             self.quotebook.bid(line.rstrip())
         elif line[0] == 'A':
@@ -55,14 +54,14 @@ class BookViewer(object):
         else:
             self.quotebook.trade(line.rstrip())
 
-        self.currIndex += 1
+        self.curr_index += 1
 
-    def reverseBook(self):
-        if len(self.quotebookHistory) > 0:
-            self.quotebook = cPickle.loads(self.quotebookHistory.pop())
-            self.currIndex -= 1
+    def reverse_book(self):
+        if len(self.quotebook_history) > 0:
+            self.quotebook = cPickle.loads(self.quotebook_history.pop())
+            self.curr_index -= 1
 
-    def readFile(self, filename):
+    def read_file(self, filename):
         try:
             reader = open(sys.argv[1], 'r')
             for line in reader:
@@ -71,50 +70,50 @@ class BookViewer(object):
             print 'Cannot open input file: %s' % filename
             sys.exit(1)
 
-    def playLines(self, number):
-        targetIndex = self.currIndex + number
-        if targetIndex > self.currIndex:
-            maxIndex = targetIndex if targetIndex < len(self.infile) else len(self.infile) - 1
-            while self.currIndex < maxIndex:
-                if maxIndex - self.currIndex <= self.max_reverse:
-                    self.processLine(saveHistory=True)
+    def play_lines(self, number):
+        target_index = self.curr_index + number
+        if target_index > self.curr_index:
+            max_index = target_index if target_index < len(self.infile) else len(self.infile) - 1
+            while self.curr_index < max_index:
+                if max_index - self.curr_index <= self.max_reverse:
+                    self.process_line(save_history=True)
                 else:
-                    self.processLine(saveHistory=False)
-        elif targetIndex < self.currIndex and targetIndex >= 0:
+                    self.process_line(save_history=False)
+        elif target_index < self.curr_index and target_index >= 0:
             # Negative lines
-            reverseLines = self.currIndex - targetIndex
-            while reverseLines > 0 and len(self.quotebookHistory) > 0:
-                self.reverseBook()
-                reverseLines -= 1
+            reverse_lines = self.curr_index - target_index
+            while reverse_lines > 0 and len(self.quotebook_history) > 0:
+                self.reverse_book()
+                reverse_lines -= 1
 
-    def playToLine(self, line):
+    def play_to_line(self, line):
         # subtract 1 because lines start at 1 not 0
-        self.playLines(line - self.currIndex - 1)
+        self.play_lines(line - self.curr_index - 1)
 
-    def playTime(self, time):
-        targetTime = self.quotebook.lastTimestamp + time
-        if targetTime >= self.quotebook.lastTimestamp:
-            while self.quotebook.lastTimestamp < targetTime and \
-                            len(self.infile) > self.currIndex + 1:
-                if targetTime - self.quotebook.lastTimestamp <= 5000 \
-                        or self.currIndex > len(self.infile) - self.max_reverse:
-                    self.processLine(saveHistory=True)
+    def play_time(self, time):
+        target_time = self.quotebook.last_timestamp + time
+        if target_time >= self.quotebook.last_timestamp:
+            while self.quotebook.last_timestamp < target_time and \
+                            len(self.infile) > self.curr_index + 1:
+                if target_time - self.quotebook.last_timestamp <= 5000 \
+                        or self.curr_index > len(self.infile) - self.max_reverse:
+                    self.process_line(save_history=True)
                 else:
-                    self.processLine(saveHistory=False)
-        elif targetTime < self.quotebook.lastTimestamp and targetTime >= 0:
+                    self.process_line(save_history=False)
+        elif target_time < self.quotebook.last_timestamp and target_time >= 0:
             # Reverse time
-            while self.quotebook.lastTimestamp > targetTime \
-                    and len(self.quotebookHistory) > 0:
-                self.reverseBook()
-            if self.quotebook.lastTimestamp > targetTime and self.currIndex > 0:
+            while self.quotebook.last_timestamp > target_time \
+                    and len(self.quotebook_history) > 0:
+                self.reverse_book()
+            if self.quotebook.last_timestamp > target_time and self.curr_index > 0:
                 # Play up to the line
                 self.reset()
-                self.playTime(targetTime)
+                self.play_time(target_time)
 
-    def playToTime(self, time):
-        self.playTime(time - self.quotebook.lastTimestamp)
+    def play_to_time(self, time):
+        self.play_time(time - self.quotebook.last_timestamp)
 
-    def getIntValue(self, message):
+    def get_int_value(self, message):
         dimensions = self.screen.getmaxyx()
         if len(message) < dimensions[1]:
             empty = dimensions[1] - len(message) - 2
@@ -124,7 +123,7 @@ class BookViewer(object):
         curses.curs_set(1);
         curses.echo()  # show cursor
         value = self.screen.getstr()
-        self.drawHelp()
+        self.draw_help()
         curses.curs_set(0);
         curses.noecho()
         try:
@@ -132,83 +131,83 @@ class BookViewer(object):
         except ValueError:
             return None
 
-    def processKey(self, character):
+    def process_key(self, character):
         if character == self.keys['PREVIOUS']:
-            self.playLines(-1)
+            self.play_lines(-1)
         elif character == self.keys['NEXT']:
-            self.playLines(1)
+            self.play_lines(1)
         elif character == self.keys['PLAY_FOR_TIME']:
-            value = self.getIntValue('Milliseconds: ')
+            value = self.get_int_value('Milliseconds: ')
             if value != None:
                 self.last_skipped = value
-                self.playTime(value)
+                self.play_time(value)
         elif character == self.keys['PLAY_TO_TIME']:
-            value = self.getIntValue('Milliseconds: ')
+            value = self.get_int_value('Milliseconds: ')
             if value != None:
-                self.playToTime(value)
+                self.play_to_time(value)
         elif character == self.keys['PLAY_FOR_LINES']:
-            value = self.getIntValue('Lines: ')
+            value = self.get_int_value('Lines: ')
             if value != None:
                 self.last_skipped = value
-                self.playLines(value)
+                self.play_lines(value)
         elif character == self.keys['PLAY_TO_LINE']:
-            value = self.getIntValue('Line: ')
+            value = self.get_int_value('Line: ')
             if value != None:
-                self.playToLine(value)
+                self.play_to_line(value)
         elif character == self.keys['AGGREGATE']:
             # Toggle tier aggregation
             self.aggregate = True if self.aggregate == False else False
 
-    def drawBook(self):
+    def draw_book(self):
         dimensions = self.screen.getmaxyx()
         length = dimensions[0] - 5
         width = (dimensions[1] - 3) / 3
 
         # Bids
-        bidWin = curses.newwin(length, width, 3, 2)
+        bid_win = curses.newwin(length, width, 3, 2)
         book = ''
         if self.aggregate:
-            book = self.quotebook.bidBookAggregatedStr().split('\n')
+            book = self.quotebook.bid_book_aggregated_str().split('\n')
         else:
-            book = self.quotebook.bidBookStr().split('\n')
+            book = self.quotebook.bid_book_str().split('\n')
         for idx, line in enumerate(book):
             if idx == 0:
-                bidWin.addstr(idx, 1, line, curses.A_STANDOUT)
+                bid_win.addstr(idx, 1, line, curses.A_STANDOUT)
             elif idx == length:
                 break
             else:
-                bidWin.addstr(idx, 1, line)
-        bidWin.refresh()
+                bid_win.addstr(idx, 1, line)
+        bid_win.refresh()
 
         # Asks
-        askWin = curses.newwin(length, width, 3, 3 + width)
+        ask_win = curses.newwin(length, width, 3, 3 + width)
         book = ''
         if self.aggregate:
-            book = self.quotebook.askBookAggregatedStr().split('\n')
+            book = self.quotebook.ask_book_aggregated_str().split('\n')
         else:
-            book = self.quotebook.askBookStr().split('\n')
+            book = self.quotebook.ask_book_str().split('\n')
         for idx, line in enumerate(book):
             if idx == 0:
-                askWin.addstr(idx, 1, line, curses.A_STANDOUT)
+                ask_win.addstr(idx, 1, line, curses.A_STANDOUT)
             elif idx == length:
                 break
             else:
-                askWin.addstr(idx, 1, line)
-        askWin.refresh()
+                ask_win.addstr(idx, 1, line)
+        ask_win.refresh()
 
         # Trades
-        tradeWin = curses.newwin(length, width, 3, 3 + (width * 2) - 1)
-        book = self.quotebook.tradeBookStr().split('\n')
+        trade_win = curses.newwin(length, width, 3, 3 + (width * 2) - 1)
+        book = self.quotebook.trade_book_str().split('\n')
         for idx, line in enumerate(book):
             if idx == 0:
-                tradeWin.addstr(idx, 1, line, curses.A_STANDOUT)
+                trade_win.addstr(idx, 1, line, curses.A_STANDOUT)
             elif idx == length:
                 break
             else:
-                tradeWin.addstr(idx, 1, line)
-        tradeWin.refresh()
+                trade_win.addstr(idx, 1, line)
+        trade_win.refresh()
 
-    def drawHelp(self):
+    def draw_help(self):
         dimensions = self.screen.getmaxyx()
         self.screen.addstr(dimensions[0] - 2, 1, self.help_text, curses.A_STANDOUT)
         if len(self.help_text) < self.screen.getmaxyx()[1] - 4:
@@ -216,29 +215,29 @@ class BookViewer(object):
             self.screen.addstr(dimensions[0] - 2, len(self.help_text) + 1, " " * empty, \
                                curses.A_STANDOUT)
 
-    def drawScreen(self):
+    def draw_screen(self):
         self.screen.clear()
         self.screen.border(0)
         self.screen.refresh()
-        self.drawHelp()
+        self.draw_help()
 
     def main(self, stdscr):
         # Draw the shortcut key bar
         self.screen = stdscr
-        self.drawScreen()
+        self.draw_screen()
 
         # Read the file
-        self.readFile(sys.argv[1])
-        self.playLines(1)
+        self.read_file(sys.argv[1])
+        self.play_lines(1)
 
         exit = False
         last_pressed = None
         while not exit:
-            self.drawBook()
+            self.draw_book()
 
             # Print current line
-            line = self.infile[self.currIndex].rstrip() + ' (line ' \
-                   + str(self.currIndex + 1) + ')'
+            line = self.infile[self.curr_index].rstrip() + ' (line ' \
+                   + str(self.curr_index + 1) + ')'
             if self.aggregate:
                 line += '  [AGGREGATED VIEW]'
             dimensions = self.screen.getmaxyx()
@@ -253,21 +252,20 @@ class BookViewer(object):
 
             if character == curses.KEY_RESIZE:
                 # Window resize
-                self.drawScreen()
-                self.drawBook()
+                self.draw_screen()
+                self.draw_book()
             elif character == self.keys['REPEAT'] and last_pressed != None:
                 if last_pressed == self.keys['PLAY_FOR_LINES']:
-                    self.playLines(self.last_skipped)
+                    self.play_lines(self.last_skipped)
                 elif last_pressed == self.keys['PLAY_FOR_TIME']:
-                    self.playTime(self.last_skipped)
+                    self.play_time(self.last_skipped)
                 else:
-                    self.processKey(last_pressed)
+                    self.process_key(last_pressed)
             elif character == self.keys['EXIT']:
                 exit = True
             else:
                 last_pressed = character
-                self.processKey(character)
-
+                self.process_key(character)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

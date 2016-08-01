@@ -27,7 +27,7 @@ Input Data Format
 	asks:
 		A,<symbol>,<exchange>,<id>,<quantity>,<price>,<timestamp>
 	trades: (optional)
-		T,<symbol>,<exchange>,<quantity>,<price>,<timestamp>
+		T,<symbol>,<exchange>,,<quantity>,<price>,<timestamp>
 
 	Symbol and exchange values are currently unimportant and can be dummy values.
 	Lines should be in timestamp-order from earliest to latest (the order it is sent by the exchange).
@@ -42,4 +42,3 @@ Application Descriptions
 Known Issues
 
 	There are some resize issues when using bookViewer.py in a (uselessly) small terminal.
-

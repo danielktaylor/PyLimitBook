@@ -2,57 +2,90 @@
 
 from book import Book
 
-
 class ResearchBook(Book):
     def __init__(self):
         super(ResearchBook, self).__init__()
-        self.openTime = 34200000  # 9:30 am
-        self.closeTime = 57600000  # 4:00 pm
+        self.open_time = 34200000  # 9:30 am
+        self.close_time = 57600000  # 4:00 pm
+        self.millis_in_hour = 3600000
+        self.millis_in_minute = 60000
+        self.millis_in_second = 1000
+        self.top_ask_price_cache = None
+        self.top_bid_price_cache = None
 
     def bid(self, bid):
-        super(ResearchBook, self).bid(bid)
+        self.top_bid_price_cache = None
+        return super(ResearchBook, self).bid(bid)
+
+    def bid_split(self, symbol, id, qty, price, timestamp):
+        self.top_bid_price_cache = None
+        return super(ResearchBook, self).bid_split(symbol, id, qty, price, timestamp)
 
     def ask(self, ask):
-        super(ResearchBook, self).ask(ask)
+        self.top_ask_price_cache = None
+        return super(ResearchBook, self).ask(ask)
+
+    def ask_split(self, symbol, id, qty, price, timestamp):
+        self.top_ask_price_cache = None
+        return super(ResearchBook, self).ask_split(symbol, id, qty, price, timestamp)
 
     def trade(self, trade):
-        super(ResearchBook, self).trade(trade)
+        return super(ResearchBook, self).trade(trade)
 
-    def isMarketOpen(self):
-        if self.lastTimestamp >= self.openTime and \
-                        self.lastTimestamp < self.closeTime:
+    def trade_split(self, symbol, qty, price, timestamp):
+        return super(ResearchBook, self).trade_split(symbol, qty, price, timestamp)
+
+    def is_market_open(self):
+        if self.last_timestamp >= self.open_time and \
+                        self.last_timestamp < self.close_time:
             return True
         else:
             return False
 
     @property
-    def topBidPrice(self):
-        if len(self.bids) == 0:
+    def top_bid_price(self):
+        if self.top_bid_price_cache != None:
+            return self.top_bid_price_cache
+        elif len(self.bids) == 0:
             return 0
-        return self.bids.max()
+        self.top_bid_price_cache = self.bids.max()
+        return self.top_bid_price_cache
 
     @property
-    def topAskPrice(self):
-        if len(self.asks) == 0:
+    def top_ask_price(self):
+        if self.top_ask_price_cache != None:
+            return self.top_ask_price_cache
+        elif len(self.asks) == 0:
             return 0
-        return self.asks.min()
+        self.top_ask_price_cache = self.asks.min()
+        return self.top_ask_price_cache
 
     @property
-    def bidVolume(self):
+    def bid_volume(self):
         return self.bids.volume
 
     @property
-    def askVolume(self):
+    def ask_volume(self):
         return self.asks.volume
 
     @property
     def spread(self):
-        spread = self.topAskPrice - self.topBidPrice
+        spread = self.top_ask_price - self.top_bid_price
         return spread if spread > 0 else 0
 
     @property
-    def midpointPrice(self):
+    def midpoint_price(self):
         if self.spread > 0:
-            return self.topBidPrice + (self.spread / 2)
+            return self.top_bid_price + (self.spread / 2)
+        elif self.top_ask_price > 0 and self.top_bid_price > 0:
+            return self.top_bid_price
         else:
             return None
+
+    @property
+    def bids_order_count(self):
+        return len(self.bids.order_map)
+
+    @property
+    def asks_order_count(self):
+        return len(self.asks.order_map)

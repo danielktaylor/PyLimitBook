@@ -5,8 +5,7 @@ from collections import deque
 from tick import Bid, Ask, Trade
 from tree import Tree
 
-
-def parseCsv(columns, line):
+def parse_csv(columns, line):
     """
     Parse a CSV line that has ',' as a separator.
     Columns is a list of the column names, must match the number of
@@ -18,59 +17,103 @@ def parseCsv(columns, line):
         data[name] = split[idx]
     return data
 
-
 class Book(object):
     def __init__(self):
         self.trades = deque(maxlen=100)  # Index [0] is most recent trade
         self.bids = Tree()
         self.asks = Tree()
-        self.lastTick = None
-        self.lastTimestamp = 0
+        self.last_tick = None
+        self.last_timestamp = 0
 
-    def processBidAsk(self, tick):
+    def process_bid_ask(self, tick):
         """
         Generic method to process bid or ask.
         """
         tree = self.asks
-        if tick.isBid:
+        if tick.is_bid:
             tree = self.bids
         if tick.qty == 0:
             # Quantity is zero -> remove the entry
-            tree.removeOrderById(tick.idNum)
+            tree.remove_order_by_id(tick.id_num)
         else:
-            if tree.orderExists(tick.idNum):
-                tree.updateOrder(tick)
+            if tree.order_exists(tick.id_num):
+                tree.update_order(tick)
             else:
                 # New order
-                tree.insertTick(tick)
+                tree.insert_tick(tick)
 
-    def bid(self, tick):
-        columns = ['event', 'symbol', 'exchange', 'idNum', 'qty', 'price', 'timestamp']
-        data = parseCsv(columns, tick)
+    def bid(self, csv):
+        columns = ['event', 'symbol', 'exchange', 'id_num', 'qty', 'price', 'timestamp']
+        data = parse_csv(columns, csv)
         bid = Bid(data)
-        if bid.timestamp > self.lastTimestamp:
-            self.lastTimestamp = bid.timestamp
-        self.lastTick = bid
-        self.processBidAsk(bid)
+        if bid.timestamp > self.last_timestamp:
+            self.last_timestamp = bid.timestamp
+        self.last_tick = bid
+        self.process_bid_ask(bid)
+        return bid
 
-    def ask(self, tick):
-        columns = ['event', 'symbol', 'exchange', 'idNum', 'qty', 'price', 'timestamp']
-        data = parseCsv(columns, tick)
+    def bid_split(self, symbol, id_num, qty, price, timestamp):
+        data = {
+            'timestamp': timestamp,
+            'qty': qty,
+            'price': price,
+            'id_num': id_num
+        }
+        bid = Bid(data)
+        if bid.timestamp > self.last_timestamp:
+            self.last_timestamp = bid.timestamp
+        self.last_tick = bid
+        self.process_bid_ask(bid)
+        return bid
+
+    def ask(self, csv):
+        columns = ['event', 'symbol', 'exchange', 'id_num', 'qty', 'price', 'timestamp']
+        data = parse_csv(columns, csv)
         ask = Ask(data)
-        if ask.timestamp > self.lastTimestamp:
-            self.lastTimestamp = ask.timestamp
-        self.lastTick = ask
-        self.processBidAsk(ask)
+        if ask.timestamp > self.last_timestamp:
+            self.last_timestamp = ask.timestamp
+        self.last_tick = ask
+        self.process_bid_ask(ask)
+        return ask
 
-    def trade(self, tick):
-        columns = ['event', 'symbol', 'exchange', 'qty', 'price', 'timestamp']
-        data = parseCsv(columns, tick)
-        data['idNum'] = 0
+    def ask_split(self, symbol, id_num, qty, price, timestamp):
+        data = {
+            'timestamp': timestamp,
+            'qty': qty,
+            'price': price,
+            'id_num': id_num
+        }
+        ask = Ask(data)
+        if ask.timestamp > self.last_timestamp:
+            self.last_timestamp = ask.timestamp
+        self.last_tick = ask
+        self.process_bid_ask(ask)
+        return ask
+
+    def trade(self, csv):
+        columns = ['event', 'symbol', 'exchange', 'id_num', 'qty', 'price', 'timestamp']
+        data = parse_csv(columns, csv)
+        data['id_num'] = 0
         trade = Trade(data)
-        if trade.timestamp > self.lastTimestamp:
-            self.lastTimestamp = trade.timestamp
-        self.lastTick = trade
+        if trade.timestamp > self.last_timestamp:
+            self.last_timestamp = trade.timestamp
+        self.last_tick = trade
         self.trades.appendleft(trade)
+        return trade
+
+    def trade_split(self, symbol, qty, price, timestamp):
+        data = {
+            'timestamp': timestamp,
+            'qty': qty,
+            'price': price,
+            'id_num': 0
+        }
+        trade = Trade(data)
+        if trade.timestamp > self.last_timestamp:
+            self.last_timestamp = trade.timestamp
+        self.last_tick = trade
+        self.trades.appendleft(trade)
+        return trade
 
     def __str__(self):
         # Efficient string concat
@@ -79,11 +122,11 @@ class Book(object):
         file_str = StringIO()
         file_str.write("------ Bids -------\n")
         if self.bids != None and len(self.bids) > 0:
-            for k, v in self.bids.priceTree.items(reverse=True):
+            for k, v in self.bids.price_tree.items(reverse=True):
                 file_str.write('%s' % v)
         file_str.write("\n------ Asks -------\n")
         if self.asks != None and len(self.asks) > 0:
-            for k, v in self.asks.priceTree.items():
+            for k, v in self.asks.price_tree.items():
                 file_str.write('%s' % v)
         file_str.write("\n------ Trades ------\n")
         if self.trades != None and len(self.trades) > 0:

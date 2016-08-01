@@ -5,88 +5,87 @@ from bintrees import FastRBTree
 from orderList import OrderList
 from order import Order
 
-
 class Tree(object):
     def __init__(self):
-        self.priceTree = FastRBTree()
+        self.price_tree = FastRBTree()
         self.volume = 0
-        self.priceMap = {}  # Map from price -> orderList object
-        self.orderMap = {}  # Order ID to Order object
-        self.minPrice = None
-        self.maxPrice = None
+        self.price_map = {}  # Map from price -> order_list object
+        self.order_map = {}  # Order ID to Order object
+        self.min_price = None
+        self.max_price = None
 
     def __len__(self):
-        return len(self.orderMap)
+        return len(self.order_map)
 
-    def getPrice(self, price):
-        return self.priceMap[price]
+    def get_price(self, price):
+        return self.price_map[price]
 
-    def getOrder(self, idNum):
-        return self.orderMap[idNum]
+    def get_order(self, id_num):
+        return self.order_map[id_num]
 
-    def createPrice(self, price):
-        newList = OrderList()
-        self.priceTree.insert(price, newList)
-        self.priceMap[price] = newList
-        if self.maxPrice == None or price > self.maxPrice:
-            self.maxPrice = price
-        if self.minPrice == None or price < self.minPrice:
-            self.minPrice = price
+    def create_price(self, price):
+        new_list = OrderList()
+        self.price_tree.insert(price, new_list)
+        self.price_map[price] = new_list
+        if self.max_price == None or price > self.max_price:
+            self.max_price = price
+        if self.min_price == None or price < self.min_price:
+            self.min_price = price
 
-    def removePrice(self, price):
-        self.priceTree.remove(price)
-        del self.priceMap[price]
+    def remove_price(self, price):
+        self.price_tree.remove(price)
+        del self.price_map[price]
 
-        if self.maxPrice == price:
+        if self.max_price == price:
             try:
-                self.maxPrice = max(self.priceTree)
+                self.max_price = max(self.price_tree)
             except ValueError:
-                self.maxPrice = None
-        if self.minPrice == price:
+                self.max_price = None
+        if self.min_price == price:
             try:
-                self.minPrice = min(self.priceTree)
+                self.min_price = min(self.price_tree)
             except ValueError:
-                self.minPrice = None
+                self.min_price = None
 
-    def priceExists(self, price):
-        return price in self.priceMap
+    def price_exists(self, price):
+        return price in self.price_map
 
-    def orderExists(self, idNum):
-        return idNum in self.orderMap
+    def order_exists(self, id_num):
+        return id_num in self.order_map
 
-    def insertTick(self, tick):
-        if tick.price not in self.priceMap:
-            self.createPrice(tick.price)
-        order = Order(tick, self.priceMap[tick.price])
-        self.priceMap[order.price].appendOrder(order)
-        self.orderMap[order.idNum] = order
+    def insert_tick(self, tick):
+        if tick.price not in self.price_map:
+            self.create_price(tick.price)
+        order = Order(tick, self.price_map[tick.price])
+        self.price_map[order.price].append_order(order)
+        self.order_map[order.id_num] = order
         self.volume += order.qty
 
-    def updateOrder(self, tick):
-        order = self.orderMap[tick.idNum]
-        originalVolume = order.qty
+    def update_order(self, tick):
+        order = self.order_map[tick.id_num]
+        original_volume = order.qty
         if tick.price != order.price:
             # Price changed
-            orderList = self.priceMap[order.price]
-            orderList.removeOrder(order)
-            if len(orderList) == 0:
-                self.removePrice(order.price)
-            self.insertTick(tick)
+            order_list = self.price_map[order.price]
+            order_list.remove_order(order)
+            if len(order_list) == 0:
+                self.remove_price(order.price)
+            self.insert_tick(tick)
         else:
             # Quantity changed
-            order.updateQty(tick.qty, tick.price)
-        self.volume += order.qty - originalVolume
+            order.update_qty(tick.qty, tick.price)
+        self.volume += order.qty - original_volume
 
-    def removeOrderById(self, idNum):
-        order = self.orderMap[idNum]
+    def remove_order_by_id(self, id_num):
+        order = self.order_map[id_num]
         self.volume -= order.qty
-        order.orderList.removeOrder(order)
-        if len(order.orderList) == 0:
-            self.removePrice(order.price)
-        del self.orderMap[idNum]
+        order.order_list.remove_order(order)
+        if len(order.order_list) == 0:
+            self.remove_price(order.price)
+        del self.order_map[id_num]
 
     def max(self):
-        return self.maxPrice
+        return self.max_price
 
     def min(self):
-        return self.minPrice
+        return self.min_price
