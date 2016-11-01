@@ -4,6 +4,8 @@ from collections import deque
 
 from tick import Bid, Ask, Trade
 from tree import Tree
+from builtins import input
+from six.moves import cStringIO as StringIO
 
 def parse_csv(columns, line):
     """
@@ -117,8 +119,6 @@ class Book(object):
 
     def __str__(self):
         # Efficient string concat
-        from cStringIO import StringIO
-
         file_str = StringIO()
         file_str.write("------ Bids -------\n")
         if self.bids != None and len(self.bids) > 0:

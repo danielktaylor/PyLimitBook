@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from book import Book
+from six.moves import cStringIO as StringIO
 
 class BookViewerBook(Book):
     def __init__(self):
@@ -8,8 +9,6 @@ class BookViewerBook(Book):
 
     def bid_book_str(self):
         # Efficient string concat
-        from cStringIO import StringIO
-
         file_str = StringIO()
         file_str.write("------- Bids --------\n")
         if self.bids != None and len(self.bids) > 0:
@@ -19,8 +18,6 @@ class BookViewerBook(Book):
 
     def bid_book_aggregated_str(self):
         # Efficient string concat
-        from cStringIO import StringIO
-
         file_str = StringIO()
         file_str.write("------- Bids --------\n")
         if self.bids != None and len(self.bids) > 0:
@@ -32,8 +29,6 @@ class BookViewerBook(Book):
 
     def ask_book_str(self):
         # Efficient string concat
-        from cStringIO import StringIO
-
         file_str = StringIO()
         file_str.write("------- Asks --------\n")
         if self.asks != None and len(self.asks) > 0:
@@ -43,8 +38,6 @@ class BookViewerBook(Book):
 
     def ask_book_aggregated_str(self):
         # Efficient string concat
-        from cStringIO import StringIO
-
         file_str = StringIO()
         file_str.write("------- Asks --------\n")
         if self.asks != None and len(self.asks) > 0:
@@ -56,8 +49,6 @@ class BookViewerBook(Book):
 
     def trade_book_str(self):
         # Efficient string concat
-        from cStringIO import StringIO
-
         file_str = StringIO()
         file_str.write("------ Trades ------\n")
         if self.trades != None and len(self.trades) > 0:

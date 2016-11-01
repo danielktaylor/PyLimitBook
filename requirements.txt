@@ -1,2 +1,4 @@
 bintrees
 pandas
+future
+six

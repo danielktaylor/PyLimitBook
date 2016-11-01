@@ -25,6 +25,8 @@ class OrderList(object):
             self.last = self.last.next_order
             return return_val
 
+    __next__ = next # Python 3.x compatibility
+
     def append_order(self, order):
         """
         :param order:
@@ -76,7 +78,7 @@ class OrderList(object):
         order.next_order = None
 
     def __str__(self):
-        from cStringIO import StringIO
+        from six.moves import cStringIO as StringIO
 
         file_str = StringIO()
         for order in self:

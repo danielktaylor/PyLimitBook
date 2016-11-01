@@ -3,7 +3,7 @@
 import sys
 import traceback
 import curses
-import cPickle
+from six.moves import cPickle
 from collections import deque
 
 from bookViewerBook import BookViewerBook
@@ -67,7 +67,7 @@ class BookViewer(object):
             for line in reader:
                 self.infile.append(line)
         except IOError:
-            print 'Cannot open input file: %s' % filename
+            print('Cannot open input file: %s' % filename)
             sys.exit(1)
 
     def play_lines(self, number):
@@ -160,8 +160,8 @@ class BookViewer(object):
 
     def draw_book(self):
         dimensions = self.screen.getmaxyx()
-        length = dimensions[0] - 5
-        width = (dimensions[1] - 3) / 3
+        length = int(dimensions[0] - 5)
+        width = int((dimensions[1] - 3) / 3)
 
         # Bids
         bid_win = curses.newwin(length, width, 3, 2)
@@ -269,7 +269,7 @@ class BookViewer(object):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print "usage: %s input.csv" % sys.argv[0]
+        print("usage: %s input.csv" % sys.argv[0])
         sys.exit(0)
 
     try:

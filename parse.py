@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
 import sys
-
+from six.moves import cStringIO
 from book import Book
+from builtins import input
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print "usage: %s input.csv" % sys.argv[0]
+        print("usage: %s input.csv" % sys.argv[0])
         sys.exit(0)
     try:
         reader = open(sys.argv[1], 'r')
@@ -20,11 +21,11 @@ if __name__ == '__main__':
                 quotebook.trade(line.rstrip())
 
             # Manual Debugging
-            print "\n"
-            print "Input: " + line
-            print quotebook
-            raw_input("Press enter to continue.")
+            print ("\n")
+            print ("Input: " + line)
+            print (quotebook)
+            input("Press enter to continue.")
         reader.close()
     except IOError:
-        print 'Cannot open input file "%s"' % sys.argv[1]
+        print ('Cannot open input file "%s"' % sys.argv[1])
         sys.exit(1)
