@@ -64,14 +64,14 @@ def sample(quotebook, output_file):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print "usage: %s input.csv output.csv" % sys.argv[0]
+        print("usage: %s input.csv output.csv" % sys.argv[0])
         sys.exit(0)
     try:
         reader = open(sys.argv[1], 'r')
         quotebook = ResearchBook()
         num_lines = 0  # Max lines to read in
         if num_lines > 0:
-            print "Only reading in %i lines" % num_lines
+            print("Only reading in %i lines" % num_lines)
         else:
             num_lines = -1
         for line in reader:
@@ -93,5 +93,5 @@ if __name__ == '__main__':
         reader.close()
         sample(quotebook, sys.argv[2])
     except IOError:
-        print 'Cannot open input file "%s"' % sys.argv[1]
+        print ('Cannot open input file "%s"' % sys.argv[1])
         sys.exit(1)
