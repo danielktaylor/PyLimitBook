@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from order import Order
+from pylimitbook.order import Order
 
 class OrderList(object):
     def __init__(self):

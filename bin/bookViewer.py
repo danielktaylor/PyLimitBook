@@ -6,7 +6,7 @@ import curses
 from six.moves import cPickle
 from collections import deque
 
-from bookViewerBook import BookViewerBook
+from pylimitbook.bookViewerBook import BookViewerBook
 
 class BookViewer(object):
     def __init__(self):
