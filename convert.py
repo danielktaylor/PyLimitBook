@@ -75,7 +75,7 @@ def get_filename(infile):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print "usage: %s input_file" % sys.argv[0]
+        print("usage: %s input_file" % sys.argv[0])
         sys.exit(0)
     try:
         reader = open(sys.argv[1], 'r')
@@ -92,5 +92,5 @@ if __name__ == '__main__':
         reader.close()
         writer.close()
     except IOError:
-        print 'Cannot open input file "%s"' % sys.argv[1]
+        print('Cannot open input file "%s"' % sys.argv[1])
         sys.exit(1)
