@@ -2,7 +2,7 @@
 
 import sys
 from six.moves import cStringIO
-from book import Book
+from pylimitbook.book import Book
 from builtins import input
 
 if __name__ == '__main__':

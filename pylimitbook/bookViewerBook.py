@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from book import Book
+from pylimitbook.book import Book
 from six.moves import cStringIO as StringIO
 
 class BookViewerBook(Book):

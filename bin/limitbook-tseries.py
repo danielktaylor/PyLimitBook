@@ -6,7 +6,7 @@ from math import isnan
 
 from pandas import *
 
-from researchBook import ResearchBook
+from pylimitbook.researchBook import ResearchBook
 
 timeseries = {}
 
