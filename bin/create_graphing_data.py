@@ -10,7 +10,7 @@ import sys
 import csv
 from math import isnan
 
-from researchBook import ResearchBook
+from pylimitbook.researchBook import ResearchBook
 
 CREATE_ON_NBBO_CHANGE_ONLY = True # only output generate lines if the top of the book changes?
 timeseries = []

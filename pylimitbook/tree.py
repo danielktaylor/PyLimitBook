@@ -2,8 +2,8 @@
 
 from bintrees import FastRBTree
 
-from orderList import OrderList
-from order import Order
+from pylimitbook.orderList import OrderList
+from pylimitbook.order import Order
 
 class Tree(object):
     def __init__(self):

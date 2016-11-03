@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from book import Book
+from pylimitbook.book import Book
 
 class ResearchBook(Book):
     def __init__(self):

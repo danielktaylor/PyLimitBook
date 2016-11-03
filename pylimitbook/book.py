@@ -2,8 +2,8 @@
 
 from collections import deque
 
-from tick import Bid, Ask, Trade
-from tree import Tree
+from pylimitbook.tick import Bid, Ask, Trade
+from pylimitbook.tree import Tree
 from builtins import input
 from six.moves import cStringIO as StringIO
 
