@@ -1,6 +1,6 @@
 from setuptools import setup
 setup(name='pylimitbook',
-      description='Simulation of limit book',
+      description='Fast limit-order book',
       url="https://github.com/danielktaylor/PyLimitBook",
       version='20161102',
       author='Daniel K Taylor',
