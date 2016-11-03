@@ -37,7 +37,7 @@ Lines should be in timestamp-order from earliest to latest (the order it is sent
 * `convert.py`  -  Convert from an input format that uses ', ' as a CSV separator and different column order to the correct input format.
 * `bookViewer.py`  -  Graphically view the book state at any point in time
 
-![BookViewer Screenshot](https://github.com/yoblin/PyLimitBook/raw/master/documentation/bookViewer_screenshot.png)
+![BookViewer Screenshot](https://github.com/yoblin/PyLimitBook/raw/master/doc/bookViewer_screenshot.png)
 
 ## Known Issues
 
