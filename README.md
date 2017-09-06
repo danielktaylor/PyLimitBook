@@ -6,10 +6,14 @@ Input files must be for a single day, symbol, and exchange.
 
 This code is aimed at other developers looking for a limit-book implementation to include in their own trading projects.
 
-## Requirements
+## Usage
 
-* pip install -r requirements.txt
-* This code has not been updated for Python 3
+```
+sudo pip install -r requirements.txt
+sudo python setup.py install
+```
+
+You should then be able to run the applications in the `bin` directory.
 
 ## Input Data Format
 
