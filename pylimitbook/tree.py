@@ -71,10 +71,11 @@ class Tree(object):
             if len(order_list) == 0:
                 self.remove_price(order.price)
             self.insert_tick(tick)
+            self.volume -= original_volume
         else:
             # Quantity changed
             order.update_qty(tick.qty, tick.price)
-        self.volume += order.qty - original_volume
+            self.volume += order.qty - original_volume
 
     def remove_order_by_id(self, id_num):
         order = self.order_map[id_num]
